@@ -1,26 +1,58 @@
-#include <SDL3/SDL.h>
+#include "lib.hpp"
+
+#include <string_view>
+
+constexpr std::string_view window_title = "DrumBlitz";
+constexpr std::string_view texture_path = "assets/texture.png";
+constexpr int screen_width = 1024;
+constexpr int screen_height = 768;
+
+class App {
+    Window window;
+    Renderer renderer;
+    Texture texture;
+
+    bool handle_event(SDL_Event &event);
+
+public:
+    App();
+    void run();
+};
+
+App::App() {
+        SDL_CreateWindowAndRenderer(
+            window_title.data(), screen_width, screen_height, 0,
+            std::out_ptr(window), std::out_ptr(renderer)
+        );
+
+        /* Surface texture_surface(SDL_LoadSurface(texture_path.data()));
+        texture.reset(
+            SDL_CreateTextureFromSurface(renderer.get(), texture_surface.get())
+        );*/
+}
+
+void App::run() {
+next_frame:
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+        if (!handle_event(event))
+            return;
+
+    SDL_RenderClear(renderer.get());
+    // SDL_RenderTexture(renderer.get(), texture.get(), nullptr, nullptr);
+    SDL_RenderPresent(renderer.get());
+    goto next_frame;
+}
+
+bool App::handle_event(SDL_Event &event) {
+    if (event.type == SDL_EVENT_QUIT)
+        return false;
+
+    return true;
+}
 
 int main(int argc, char *argv[]) {
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-
-    SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer("DrumBlitz", 1024, 768, 0, &window, &renderer);
-
-    bool running = true;
-    while (running) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-            if (event.type == SDL_EVENT_QUIT)
-                running = false;
-
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
-    }
-
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-
-    SDL_Quit();
+    App app;
+    try { app.run(); } catch (...) {}
     return 0;
 }
