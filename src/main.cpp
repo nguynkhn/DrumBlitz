@@ -1,5 +1,6 @@
 #include "lib.hpp"
 
+#include <iostream>
 #include <string_view>
 
 constexpr std::string_view window_title = "DrumBlitz";
@@ -10,25 +11,29 @@ constexpr int screen_height = 768;
 class App {
     Window window;
     Renderer renderer;
-    Texture texture;
-
-    bool handle_event(SDL_Event &event);
 
 public:
     App();
+    ~App();
     void run();
+
+private:
+    bool handle_event(SDL_Event &event);
 };
 
 App::App() {
-        SDL_CreateWindowAndRenderer(
-            window_title.data(), screen_width, screen_height, 0,
-            std::out_ptr(window), std::out_ptr(renderer)
-        );
+    SDL_Init(SDL_INIT_VIDEO);
+    check_sdl_error("Failed to initialize SDL");
 
-        /* Surface texture_surface(SDL_LoadSurface(texture_path.data()));
-        texture.reset(
-            SDL_CreateTextureFromSurface(renderer.get(), texture_surface.get())
-        );*/
+    SDL_CreateWindowAndRenderer(
+        window_title.data(), screen_width, screen_height, 0,
+        std::out_ptr(window), std::out_ptr(renderer)
+    );
+    check_sdl_error("Failed to create window");
+}
+
+App::~App() {
+    SDL_Quit();
 }
 
 void App::run() {
@@ -39,7 +44,6 @@ next_frame:
             return;
 
     SDL_RenderClear(renderer.get());
-    // SDL_RenderTexture(renderer.get(), texture.get(), nullptr, nullptr);
     SDL_RenderPresent(renderer.get());
     goto next_frame;
 }
@@ -52,7 +56,11 @@ bool App::handle_event(SDL_Event &event) {
 }
 
 int main(int argc, char *argv[]) {
-    App app;
-    try { app.run(); } catch (...) {}
+    try {
+        App app;
+        app.run();
+    } catch (const std::string &error) {
+        SDL_Log("%s\n", error.c_str());
+    }
     return 0;
 }
