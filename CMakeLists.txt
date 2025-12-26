@@ -9,5 +9,5 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
 add_subdirectory(vendor/SDL)
 
-add_executable(drumblitz src/main.cpp)
+add_executable(drumblitz src/app.cpp src/lib.cpp src/main.cpp)
 target_link_libraries(drumblitz SDL3::SDL3)

@@ -4,7 +4,6 @@
 #include <SDL3/SDL.h>
 
 #include <memory>
-#include <format>
 #include <string_view>
 
 template <auto Deleter>
@@ -21,13 +20,6 @@ using Renderer = static_ptr<SDL_Renderer, SDL_DestroyRenderer>;
 using Surface = static_ptr<SDL_Surface, SDL_DestroySurface>;
 using Texture = static_ptr<SDL_Texture, SDL_DestroyTexture>;
 
-void check_sdl_error(const std::string_view error_msg) {
-    const std::string_view error_desc{SDL_GetError()};
-    if (error_desc.empty())
-        return;
-
-    SDL_ClearError();
-    throw std::format("{}: {}", error_msg, error_desc);
-}
+void check_sdl_error(const std::string_view error_msg);
 
 #endif // DRUM_BLITZ_LIB_HPP
